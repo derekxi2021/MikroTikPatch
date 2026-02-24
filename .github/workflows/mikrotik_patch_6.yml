@@ -86,32 +86,21 @@ jobs:
         echo $(uname -a)
         LATEST_VERSION="${{ github.event.inputs.version }}"
         if [ -z "$LATEST_VERSION" ]; then
-          LATEST_VERSION="6.49.19"  # fallback 到固定版本
+          LATEST_VERSION="6.49.19"
         fi
         echo "Using version: $LATEST_VERSION"
-        wget -nv -O routeros-mipsbe.npk https://download.mikrotik.com/routeros/$LATEST_VERSION/routeros-mmips-$LATEST_VERSION.npk
+        
+        # 直接下载官方链接，绕过 secrets
+        wget -nv -O routeros-mipsbe.npk "https://download.mikrotik.com/routeros/$LATEST_VERSION/routeros-mmips-$LATEST_VERSION.npk"
         if [ $? -ne 0 ]; then
           echo "Download failed!"
           exit 1
         fi
+        
+        # 跳过 CHANGELOG 和 secrets 部分
         echo "LATEST_VERSION=$LATEST_VERSION" >> $GITHUB_ENV
-        # 跳过 CHANGELOG 和 secrets 相关部分
         has_patched_npk=false
         echo "has_patched_npk=$has_patched_npk" >> $GITHUB_OUTPUT
-       
-          - name: Cache mikrotik-${{ env.LATEST_VERSION }}.iso
-            if: steps.get_latest.outputs.has_new_version == 'true'
-            id: cache-mikrotik
-            uses: actions/cache@v4
-            with:
-              path: |
-                mikrotik.iso
-              key: mikrotik-${{ env.LATEST_VERSION }}
-      
-          - name: Get mikrotik-${{ env.LATEST_VERSION }}.iso
-            if: steps.get_latest.outputs.has_new_version == 'true' && steps.cache-mikrotik.outputs.cache-hit != 'true'
-            run: |
-                sudo wget -nv -O mikrotik.iso https://download.mikrotik.com/routeros/$LATEST_VERSION/mikrotik-$LATEST_VERSION.iso
 
     - name: Patch mikrotik-${{ env.LATEST_VERSION }}.iso
       if: steps.get_latest.outputs.has_new_version == 'true'
