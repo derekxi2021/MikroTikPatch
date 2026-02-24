@@ -89,7 +89,7 @@ jobs:
           LATEST_VERSION="6.49.19"  # fallback 到固定版本
         fi
         echo "Using version: $LATEST_VERSION"
-        wget -nv -O routeros-mipsbe.npk https://download.mikrotik.com/routeros/$LATEST_VERSION/routeros-mipsbe-$LATEST_VERSION.npk
+        wget -nv -O routeros-mipsbe.npk https://download.mikrotik.com/routeros/$LATEST_VERSION/routeros-mmips-$LATEST_VERSION.npk
         if [ $? -ne 0 ]; then
           echo "Download failed!"
           exit 1
